@@ -5,6 +5,11 @@ import re
 import os
 import time
 
+def parse_comment(comment):
+	#if comment.author_flair_text == ":Omen:":
+	print(comment.id)
+		#if comment.link_id not in previous_posts:
+
 # Create Reddit instance
 reddit = praw.Reddit('bot2')
 
@@ -24,23 +29,31 @@ else:
 subreddit = reddit.subreddit('VALORANT')
 
 # Setup subreddit stream
+stream = subreddit.stream.comments()
+
 while True: 
-	for comment in subreddit.stream.comments():
-		parse_comment(comment)
+	try:
+		# Get comments from stream
+		for comment in stream:
+			parse_comment(comment)
+	except KeyboardInterrupt:
+		# Write to log file
+		with open("log.txt", "a") as f:
+			f.write("KeyboardInterrupt: %s\n" % time.ctime())
+		# Write list back to file after keyboard interrupt
+		with open("previous_posts.txt", "w") as f:
+			for post_id in previous_posts:
+				f.write(post_id + "\n") 
+		exit()
 	except Exception as err:
 		# Write error to log file
-		with open("log.txt", "w") as f:
-			f.write("Stream error: %s\n" % time.ctime())
+		with open("log.txt", "a") as f:
+			f.write("%s: %s\n" % string(err), time.ctime())
 		# Write list back to file in case of error
 		with open("previous_posts.txt", "w") as f:
 			for post_id in previous_posts:
-			f.write(post_id + "\n") 
+				f.write(post_id + "\n") 
 	time.sleep(5 * 60) # Try again after 5 minutes
-		
-def parse_comment(comment):
-	if comment.author_flair_text == ":riot:":
-		print(comment)
-		#if comment.link_id not in previous_posts:
 
 """for submission in subreddit.new(limit=10):
     #print(submission.title)
