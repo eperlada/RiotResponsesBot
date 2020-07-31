@@ -6,24 +6,24 @@ import os
 import time
 
 def parse_comment(comment):
-	#if comment.author_flair_text == ":Omen:":
+	# Check if comment is from a Riot employee
+	#if comment.author_flair_text == ":riot:":
 	print(comment.id)
+		# Check if 
 		#if comment.link_id not in previous_posts:
 
 # Create Reddit instance
 reddit = praw.Reddit('bot2')
 
-# Create empty list if first time running code
+# If first time running code, create empty dictionary
 if not os.path.isfile("previous_posts.txt"):
-	previous_posts = []
+	previous_posts = {}
 
-# If we have run the code before, load the list of posts we have replied to
+# If we have run the code before, load the dictionary of link_ids where a Riot employee response was previously detected
 else:
-    # Read the file into a list and filter out empty values
-    with open("previous_posts.txt", "r") as f:
-        previous_posts = f.read()
-        previous_posts = previous_posts.split("\n")
-        previous_posts = list(filter(None, previous_posts))
+    # Read the file into a dictionary
+	with open("previous_posts.txt", "r") as f:
+		previous_posts = {source: link for line in f for (source, link) in (line.strip().split(None, 1),)}
 
 # Create subreddit instance
 subreddit = reddit.subreddit('VALORANT')
@@ -31,6 +31,7 @@ subreddit = reddit.subreddit('VALORANT')
 # Setup subreddit stream
 stream = subreddit.stream.comments()
 
+# Infinite loop to keep trying in case of exceptions
 while True: 
 	try:
 		# Get comments from stream
@@ -40,19 +41,19 @@ while True:
 		# Write to log file
 		with open("log.txt", "a") as f:
 			f.write("KeyboardInterrupt: %s\n" % time.ctime())
-		# Write list back to file after keyboard interrupt
+		# Write dictionary back to file after keyboard interrupt
 		with open("previous_posts.txt", "w") as f:
-			for post_id in previous_posts:
-				f.write(post_id + "\n") 
+			for source, link in previous_posts.items():
+				f.write("%s %s\n" % source, link) 
 		exit()
 	except Exception as err:
 		# Write error to log file
 		with open("log.txt", "a") as f:
 			f.write("%s: %s\n" % string(err), time.ctime())
-		# Write list back to file in case of error
+		# Write dictionary back to file in case of error
 		with open("previous_posts.txt", "w") as f:
-			for post_id in previous_posts:
-				f.write(post_id + "\n") 
+			for source, link in previous_posts.items():
+				f.write("%s %s\n" % source, link)  
 	time.sleep(5 * 60) # Try again after 5 minutes
 
 """for submission in subreddit.new(limit=10):
