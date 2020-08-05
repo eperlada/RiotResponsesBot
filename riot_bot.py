@@ -5,12 +5,24 @@ import re
 import os
 import time
 
+# Creates post
+def create_post(comment):
+	post_title = "[" + comment.submission.author.name + "] " + comment.submission.title
+	response = comment.author.name + ": [" + comment.body + "](https://www.reddit.com" + comment.permalink + ")"
+	post_body = "[Original Post](" + comment.submission.permalink + ")\n\n" + response
+	reddit.subreddit('RiotResponses').submit(title=post_title, selftext=post_body)
+
+#def update_post(comment):
+
 def parse_comment(comment):
 	# Check if comment is from a Riot employee
 	#if comment.author_flair_text == ":riot:":
 	print(comment.id)
-		# Check if 
+		# Check if another comment from same thread was previously posted
 		#if comment.link_id not in previous_posts:
+			#create_post(comment)
+		#else:
+			#update_post(comment)
 
 # Create Reddit instance
 reddit = praw.Reddit('bot2')
@@ -32,7 +44,7 @@ subreddit = reddit.subreddit('VALORANT')
 stream = subreddit.stream.comments()
 
 # Infinite loop to keep trying in case of exceptions
-while True: 
+while True:
 	try:
 		# Get comments from stream
 		for comment in stream:
@@ -44,8 +56,8 @@ while True:
 		# Write dictionary back to file after keyboard interrupt
 		with open("previous_posts.txt", "w") as f:
 			for source, link in previous_posts.items():
-				f.write("%s %s\n" % source, link) 
-		exit()
+				f.write("%s %s\n" % source, link)
+		exit()			# Exit on KeyboardInterrupt
 	except Exception as err:
 		# Write error to log file
 		with open("log.txt", "a") as f:
@@ -53,20 +65,5 @@ while True:
 		# Write dictionary back to file in case of error
 		with open("previous_posts.txt", "w") as f:
 			for source, link in previous_posts.items():
-				f.write("%s %s\n" % source, link)  
+				f.write("%s %s\n" % source, link)
 	time.sleep(5 * 60) # Try again after 5 minutes
-
-"""for submission in subreddit.new(limit=10):
-    #print(submission.title)
-
-    # If we haven't replied to this post before
-    if submission.id not in previous_posts:
-
-        # Do a case insensitive search
-        if re.search("i love python", submission.title, re.IGNORECASE):
-            # Reply to the post
-            submission.reply("testing 123")
-            print("Bot replying to : ", submission.title)
-
-            # Store the current id into our list
-            previous_posts.append(submission.id)"""
