@@ -7,10 +7,15 @@ import time
 
 # Creates post
 def create_post(comment):
+	# Post title format: [Original Poster] Submission Title
 	post_title = "[" + comment.submission.author.name + "] " + comment.submission.title
+	# Format response with Riot staff username then response body
 	response = comment.author.name + ": [" + comment.body + "](https://www.reddit.com" + comment.permalink + ")"
+	# Add link to original post in body of response post
 	post_body = "[Original Post](" + comment.submission.permalink + ")\n\n" + response
-	reddit.subreddit('RiotResponses').submit(title=post_title, selftext=post_body)
+	post = reddit.subreddit('RiotResponses').submit(title=post_title, selftext=post_body)
+	# Add submission ids for original post and response post to previous_posts
+	previous_posts[comment.submission.id] = post.id
 
 #def update_post(comment):
 
