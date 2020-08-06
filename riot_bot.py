@@ -5,33 +5,42 @@ import re
 import os
 import time
 
-# Creates post
-def create_post(comment):
+# Create Reddit instance
+reddit = praw.Reddit('bot1')
+
+# Formats a comment with the author name, comment body, and permalink to the comment
+def formatResponse(comment):
+	formatted = comment.author.name + ": [" + comment.body + "](https://www.reddit.com" + comment.permalink + ")"
+	return formatted
+
+# Creates post with initial Riot response
+def createPost(comment):
 	# Post title format: [Original Poster] Submission Title
 	post_title = "[" + comment.submission.author.name + "] " + comment.submission.title
 	# Format response with Riot staff username then response body
-	response = comment.author.name + ": [" + comment.body + "](https://www.reddit.com" + comment.permalink + ")"
+	response = formatResponse(comment)
 	# Add link to original post in body of response post
 	post_body = "[Original Post](" + comment.submission.permalink + ")\n\n" + response
 	post = reddit.subreddit('RiotResponses').submit(title=post_title, selftext=post_body)
 	# Add submission ids for original post and response post to previous_posts
 	previous_posts[comment.submission.id] = post.id
 
-#def update_post(comment):
+# Updates a previously made post with a Riot response from the same submission
+def updatePost(comment, post):
+	body = post.selftext
+	body += "\n\n" + formatResponse(comment)
+	post.edit(body)
 
-def parse_comment(comment):
+def parseComment(comment):
 	# Check if comment is from a Riot employee
-	#if comment.author_flair_text == ":riot:":
-	print(comment.id)
+	if comment.author_flair_text == ":riot:":
+	#print(comment.id)
 		# Check if another comment from same thread was previously posted
-		#if comment.link_id not in previous_posts:
-			#create_post(comment)
-		#else:
-			#update_post(comment)
-
-# Create Reddit instance
-reddit = praw.Reddit('bot2')
-
+		if comment.submission.id not in previous_posts:
+			createPost(comment)
+		else:
+			updatePost(comment, reddit.submission(previous_posts[comment.submission.id]))
+			
 # If first time running code, create empty dictionary
 if not os.path.isfile("previous_posts.txt"):
 	previous_posts = {}
@@ -48,12 +57,11 @@ subreddit = reddit.subreddit('VALORANT')
 # Setup subreddit stream
 stream = subreddit.stream.comments()
 
-# Infinite loop to keep trying in case of exceptions
 while True:
 	try:
 		# Get comments from stream
 		for comment in stream:
-			parse_comment(comment)
+			parseComment(comment)
 	except KeyboardInterrupt:
 		# Write to log file
 		with open("log.txt", "a") as f:
