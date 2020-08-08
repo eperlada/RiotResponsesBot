@@ -19,7 +19,11 @@ def formatResponse(comment):
 # Creates post with initial response
 def createPost(comment):
 	# Post title format: [Original Poster] Submission Title
-	post_title = "[" + comment.submission.author.name + "] " + comment.submission.title
+	if comment.submission.author == None:
+		op = "deleted"
+	else:
+		op = comment.submission.author.name
+	post_title = "[" + op + "] " + comment.submission.title
 	# Add link to original post
 	body = "##[Original Post](" + comment.submission.permalink + ")"
 	# Create table with response
@@ -72,14 +76,14 @@ while True:
 		# Write dictionary back to file after keyboard interrupt
 		with open("previous_posts.txt", "w") as f:
 			for source, link in previous_posts.items():
-				f.write("%s %s\n" % source, link)
+				f.write("%s %s\n" % (source, link))
 		exit()			# Exit on KeyboardInterrupt
 	except Exception as err:
 		# Write error to log file
 		with open("log.txt", "a") as f:
-			f.write("%s: %s\n" % string(err), time.ctime())
+			f.write("%s: %s\n" % str(err), time.ctime())
 		# Write dictionary back to file in case of error
 		with open("previous_posts.txt", "w") as f:
 			for source, link in previous_posts.items():
-				f.write("%s %s\n" % source, link)
+				f.write("%s %s\n" % (source, link))
 	time.sleep(5 * 60) # Try again after 5 minutes
