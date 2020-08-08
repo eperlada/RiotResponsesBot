@@ -10,27 +10,30 @@ reddit = praw.Reddit('bot1')
 
 # Formats a comment with the author name, comment body, and permalink to the comment
 def formatResponse(comment):
-	formatted = comment.author.name + ": [" + comment.body + "](https://www.reddit.com" + comment.permalink + ")"
+	body = comment.body
+	# Replace new lines with a single space to preserve Reddit table formatting
+	body = re.sub(r'\n+', ' ', body).strip()
+	formatted = comment.author.name + " | [Link](https://www.reddit.com" + comment.permalink + ") | " + body
 	return formatted
 
-# Creates post with initial Riot response
+# Creates post with initial response
 def createPost(comment):
 	# Post title format: [Original Poster] Submission Title
 	post_title = "[" + comment.submission.author.name + "] " + comment.submission.title
-	# Format response with Riot staff username then response body
-	response = formatResponse(comment)
-	# Add link to original post in body of response post
-	post_body = "[Original Post](" + comment.submission.permalink + ")\n\n" + response
-	post = reddit.subreddit('RiotResponses').submit(title=post_title, selftext=post_body)
+	# Add link to original post
+	body = "##[Original Post](" + comment.submission.permalink + ")"
+	# Create table with response
+	body += "\n\nUsername | Link | Response\n" + "---|---|---\n" + formatResponse(comment)
+	post = reddit.subreddit('RiotResponses').submit(title=post_title, selftext=body)
 	# Add submission ids for original post and response post to previous_posts
 	previous_posts[comment.submission.id] = post.id
 
-# Updates a previously made post with a Riot response from the same submission
+# Updates a previously created post to add a new response from the same submission
 def updatePost(comment, post):
 	body = post.selftext
-	body += "\n\n" + formatResponse(comment)
+	body += "\n" + formatResponse(comment)
 	post.edit(body)
-
+	
 def parseComment(comment):
 	# Check if comment is from a Riot employee
 	if comment.author_flair_text == ":riot:":
