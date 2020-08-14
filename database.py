@@ -25,6 +25,15 @@ def disconnect(dbcon):
 	if dbcon is not None and dbcon.is_connected():
 		dbcon.close()
 		print("MySQL connection closed")
+		
+def insert(source, post):
+	dbcon = connect()
+	dbcur = dbcon.cursor()
+		dbcur.execute("INSERT INTO Posts VALUES (%s, %s)", (source, post))
+	dbcon.commit()
+	print("Successfully inserted into Posts")
+	dbcur.close()
+	disconnect(dbcon)
 
 def checkTableExists(dbcon, tablename):
 	dbcur = dbcon.cursor()

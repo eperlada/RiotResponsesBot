@@ -27,20 +27,16 @@ def createPost(comment):
 	else:
 		op = comment.submission.author.name
 	post_title = "[" + op + "] " + comment.submission.title
-	# Add link to original post
 	body = "##[Original Post](" + comment.submission.permalink + ")"
-	# Create table with response
 	body += "\n\nUsername | Link | Response\n" + "---|---|---\n" + formatResponse(comment)
+	# Post to subreddit
 	post = reddit.subreddit('RiotResponses').submit(title=post_title, selftext=body)
-	# Add submission ids for original post and response post to previous_posts
-	previous_posts[comment.submission.id] = post.id
 	
+	# Add submission ids for original post and response post to previous_posts
+	previous_posts[comment.submission.id] = post.id	
 	# Update database
-	dbcon = db.connect()
-	dbcur = dbcon.cursor()
-	dbcur.execute("INSERT INTO Posts VALUES (%s, %s)", (comment.submission.id, post.id))
-	db.disconnect(dbcon)
-
+	db.insert(comment.submission.id, post.id)
+	
 # Updates a previously created post to add a new response from the same submission
 def updatePost(comment, post):
 	body = post.selftext
