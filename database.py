@@ -19,7 +19,7 @@ def connect():
 		print("Connected to MySQL database")
 		return dbcon
 	except Error as e:
-		print("Error reading data from MySQL table: ", e)
+		print("Error reading data from MySQL table ", e)
 
 def disconnect(dbcon):		
 	if dbcon is not None and dbcon.is_connected():
@@ -28,12 +28,16 @@ def disconnect(dbcon):
 		
 def insert(source, post):
 	dbcon = connect()
-	dbcur = dbcon.cursor()
-		dbcur.execute("INSERT INTO Posts VALUES (%s, %s)", (source, post))
-	dbcon.commit()
-	print("Successfully inserted into Posts")
-	dbcur.close()
-	disconnect(dbcon)
+	try:
+		dbcur = dbcon.cursor()
+			dbcur.execute("INSERT INTO Posts VALUES (%s, %s)", (source, post))
+		dbcon.commit()
+		print("Successfully inserted into Posts")
+	except Error as e:
+		print("Error inserting into MySQL table ", e)
+	finally:	
+		dbcur.close()
+		disconnect(dbcon)
 
 def checkTableExists(dbcon, tablename):
 	dbcur = dbcon.cursor()
