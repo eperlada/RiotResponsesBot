@@ -4,6 +4,9 @@ import pdb
 import re
 import os
 import time
+import mysql.connector as SQLC
+from mysql.connector import Error
+import database as db
 
 # Create Reddit instance
 reddit = praw.Reddit('bot1')
@@ -31,6 +34,12 @@ def createPost(comment):
 	post = reddit.subreddit('RiotResponses').submit(title=post_title, selftext=body)
 	# Add submission ids for original post and response post to previous_posts
 	previous_posts[comment.submission.id] = post.id
+	
+	# Update database
+	dbcon = db.connect()
+	dbcur = dbcon.cursor()
+	dbcur.execute("INSERT INTO Posts VALUES (%s, %s)", (comment.submission.id, post.id))
+	db.disconnect(dbcon)
 
 # Updates a previously created post to add a new response from the same submission
 def updatePost(comment, post):
@@ -40,7 +49,7 @@ def updatePost(comment, post):
 	
 def parseComment(comment):
 	# Check if comment is from a Riot employee
-	if comment.author_flair_text == ":riot:":
+	if comment.author_flair_text == ":raze:":
 	#print(comment.id)
 		# Check if another comment from same thread was previously posted
 		if comment.submission.id not in previous_posts:
@@ -48,15 +57,22 @@ def parseComment(comment):
 		else:
 			updatePost(comment, reddit.submission(previous_posts[comment.submission.id]))
 			
-# If first time running code, create empty dictionary
-if not os.path.isfile("previous_posts.txt"):
-	previous_posts = {}
+# Connect to database
+dbcon = db.connect()
+previous_posts = {}
 
-# If we have run the code before, load the dictionary of link_ids where a Riot employee response was previously detected
+# Check for table in database
+if not db.checkTableExists(dbcon, "Posts"):
+	db.createTable(dbcon)
+# If table already exists in database, import rows into dictionary
 else:
-    # Read the file into a dictionary
-	with open("previous_posts.txt", "r") as f:
-		previous_posts = {source: link for line in f for (source, link) in (line.strip().split(None, 1),)}
+	dbcur = dbcon.cursor()
+	dbcur.execute("SELECT * FROM Posts")
+	dbposts = dbcur.fetchall()
+	for (source, post) in dbposts:
+		previous_posts[source] = post
+
+db.disconnect(dbcon)
 
 # Create subreddit instance
 subreddit = reddit.subreddit('VALORANT')
@@ -73,17 +89,10 @@ while True:
 		# Write to log file
 		with open("log.txt", "a") as f:
 			f.write("KeyboardInterrupt: %s\n" % time.ctime())
-		# Write dictionary back to file after keyboard interrupt
-		with open("previous_posts.txt", "w") as f:
-			for source, link in previous_posts.items():
-				f.write("%s %s\n" % (source, link))
+
 		exit()			# Exit on KeyboardInterrupt
 	except Exception as err:
 		# Write error to log file
 		with open("log.txt", "a") as f:
 			f.write("%s: %s\n" % str(err), time.ctime())
-		# Write dictionary back to file in case of error
-		with open("previous_posts.txt", "w") as f:
-			for source, link in previous_posts.items():
-				f.write("%s %s\n" % (source, link))
 	time.sleep(5 * 60) # Try again after 5 minutes
