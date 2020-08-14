@@ -54,7 +54,7 @@ def parseComment(comment):
 			updatePost(comment, reddit.submission(previous_posts[comment.submission.id]))
 		
 # Connect to database
-dbcon = db.connect()		
+dbcon = db.connect()
 previous_posts = {}
 
 # Check for table in database
