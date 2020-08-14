@@ -45,16 +45,16 @@ def updatePost(comment, post):
 	
 def parseComment(comment):
 	# Check if comment is from a Riot employee
-	if comment.author_flair_text == ":raze:":
+	if comment.author_flair_text == ":riot:":
 	#print(comment.id)
 		# Check if another comment from same thread was previously posted
 		if comment.submission.id not in previous_posts:
 			createPost(comment)
 		else:
 			updatePost(comment, reddit.submission(previous_posts[comment.submission.id]))
-			
+		
 # Connect to database
-dbcon = db.connect()
+dbcon = db.connect()		
 previous_posts = {}
 
 # Check for table in database
@@ -68,6 +68,7 @@ else:
 	for (source, post) in dbposts:
 		previous_posts[source] = post
 
+# Close database connection after loading in data
 db.disconnect(dbcon)
 
 # Create subreddit instance
@@ -85,7 +86,6 @@ while True:
 		# Write to log file
 		with open("log.txt", "a") as f:
 			f.write("KeyboardInterrupt: %s\n" % time.ctime())
-
 		exit()			# Exit on KeyboardInterrupt
 	except Exception as err:
 		# Write error to log file
