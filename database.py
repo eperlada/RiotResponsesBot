@@ -9,23 +9,22 @@ from mysql.connector import Error
 from configparser import ConfigParser
 
 # Read config.ini
-config_obj = ConfigParser()
-config_obj.read("config.ini")
-db_info = config_obj["DATABASE"]
+config = ConfigParser()
+config.read("config.ini")
 
 def connect():
 	try:			
 		# Connect to database
 		dbcon = SQLC.connect(
-				host = db_info["host"],
-				user = db_info["user"],
-				passwd = db_info["passwd"],
-				database = db_info["database"]
+				host = config["DATABASE"]["host"],
+				user = config["DATABASE"]["user"],
+				passwd = config["DATABASE"]["passwd"],
+				database = config["DATABASE"]["database"]
 			)
 		print("Connected to MySQL database")
 		return dbcon
 	except Error as e:
-		print("Error reading data from MySQL table", e)
+		print("Error connecting to MySQL database", e)
 
 def disconnect(dbcon):		
 	if dbcon is not None and dbcon.is_connected():

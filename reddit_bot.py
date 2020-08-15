@@ -10,15 +10,14 @@ import database as db
 from configparser import ConfigParser
 
 # Read config.ini
-config_obj = ConfigParser()
-config_obj.read("config.ini")
-reddit_info = config_obj["REDDIT"]
+config = ConfigParser()
+config.read("config.ini")
 
 # Create Reddit instance
-reddit = praw.Reddit(username = reddit_info["username"],
-					password = reddit_info["password"],
-					client_id = reddit_info["client_id"],
-					client_secret = reddit_info["client_secret"],
+reddit = praw.Reddit(username = config["REDDIT"]["username"],
+					password = config["REDDIT"]["password"],
+					client_id = config["REDDIT"]["client_id"],
+					client_secret = config["REDDIT"]["client_secret"],
 					user_agent = "RiotResponses Bot v0.3")
 
 # Formats a comment with the author name, comment body, and permalink to the comment
