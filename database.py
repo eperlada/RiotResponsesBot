@@ -6,15 +6,21 @@ import os
 import time
 import mysql.connector as SQLC
 from mysql.connector import Error
+from configparser import ConfigParser
+
+# Read config.ini
+config_obj = ConfigParser()
+config_obj.read("config.ini")
+db_info = config_obj["DATABASE"]
 
 def connect():
 	try:			
 		# Connect to database
 		dbcon = SQLC.connect(
-				host = "localhost",
-				user = "Ethan",
-				passwd = "Tvv0Xn8m#17O",
-				database = "RedditBot"
+				host = db_info["host"],
+				user = db_info["user"],
+				passwd = db_info["passwd"],
+				database = db_info["database"]
 			)
 		print("Connected to MySQL database")
 		return dbcon

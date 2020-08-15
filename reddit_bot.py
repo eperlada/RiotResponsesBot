@@ -7,9 +7,19 @@ import time
 import mysql.connector as SQLC
 from mysql.connector import Error
 import database as db
+from configparser import ConfigParser
+
+# Read config.ini
+config_obj = ConfigParser()
+config_obj.read("config.ini")
+reddit_info = config_obj["REDDIT"]
 
 # Create Reddit instance
-reddit = praw.Reddit('bot1')
+reddit = praw.Reddit(username = reddit_info["username"],
+					password = reddit_info["password"],
+					client_id = reddit_info["client_id"],
+					client_secret = reddit_info["client_secret"],
+					user_agent = "RiotResponses Bot v0.3")
 
 # Formats a comment with the author name, comment body, and permalink to the comment
 def formatResponse(comment):
@@ -45,7 +55,7 @@ def updatePost(comment, post):
 	
 def parseComment(comment):
 	# Check if comment is from a Riot employee
-	if comment.author_flair_text == ":riot:":
+	if comment.author_flair_text == ":Omen:":
 	#print(comment.id)
 		# Check if another comment from same thread was previously posted
 		if comment.submission.id not in previous_posts:
