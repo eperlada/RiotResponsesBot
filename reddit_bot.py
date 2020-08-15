@@ -54,7 +54,7 @@ def updatePost(comment, post):
 	
 def parseComment(comment):
 	# Check if comment is from a Riot employee
-	if comment.author_flair_text == ":Omen:":
+	if comment.author_flair_text == ":riot:":
 	#print(comment.id)
 		# Check if another comment from same thread was previously posted
 		if comment.submission.id not in previous_posts:
