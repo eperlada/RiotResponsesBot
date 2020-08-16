@@ -39,7 +39,7 @@ def createPost(comment):
 	body = "##[Original Post](" + comment.submission.permalink + ")"
 	body += "\n\nUsername | Link | Response\n" + "---|---|---\n" + formatResponse(comment)
 	# Post to subreddit
-	post = reddit.subreddit('RiotResponses').submit(title=post_title, selftext=body)
+	post = reddit.subreddit(config["REDDIT"]["target_subreddit"]).submit(title=post_title, selftext=body)
 	
 	# Add submission ids for original post and response post to previous_posts
 	previous_posts[comment.submission.id] = post.id	
