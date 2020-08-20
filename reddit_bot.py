@@ -8,6 +8,10 @@ import mysql.connector as SQLC
 from mysql.connector import Error
 import database as db
 from configparser import ConfigParser
+import logging
+
+# Set up logging
+logging.basicConfig(filename = 'riotresponses.log', format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 # Read config.ini
 config = ConfigParser()
@@ -40,18 +44,18 @@ def createPost(comment):
 	body += "\n\nUsername | Link | Response\n" + "---|---|---\n" + formatResponse(comment)
 	# Post to subreddit
 	post = reddit.subreddit(config["REDDIT"]["target_subreddit"]).submit(title=post_title, selftext=body)
-	
+
 	# Add submission ids for original post and response post to previous_posts
-	previous_posts[comment.submission.id] = post.id	
+	previous_posts[comment.submission.id] = post.id
 	# Update database
 	db.insert(comment.submission.id, post.id)
-	
+
 # Updates a previously created post to add a new response from the same submission
 def updatePost(comment, post):
 	body = post.selftext
 	body += "\n" + formatResponse(comment)
 	post.edit(body)
-	
+
 def parseComment(comment):
 	# Check if comment is from a Riot employee
 	if comment.author_flair_text == ":riot:":
@@ -61,7 +65,7 @@ def parseComment(comment):
 			createPost(comment)
 		else:
 			updatePost(comment, reddit.submission(previous_posts[comment.submission.id]))
-		
+
 # Connect to database
 dbcon = db.connect()
 previous_posts = {}
@@ -93,11 +97,9 @@ while True:
 			parseComment(comment)
 	except KeyboardInterrupt:
 		# Write to log file
-		with open("log.txt", "a") as f:
-			f.write("KeyboardInterrupt: %s\n" % time.ctime())
+		logging.info("KeyboardInterrupt")
 		exit()			# Exit on KeyboardInterrupt
 	except Exception as err:
 		# Write error to log file
-		with open("log.txt", "a") as f:
-			f.write("%s: %s\n" % str(err), time.ctime())
+		logging.exception("Exception raised!")
 	time.sleep(5 * 60) # Try again after 5 minutes
