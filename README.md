@@ -8,8 +8,8 @@ Reddit bot created with Python 3.6 and MySQL 8.0
 * [Setup](#setup)
 
 ## General info
-This Reddit bot scans the VALORANT subreddit for comments from Riot Games employees. These comments are organized in tables and posted in submissions on the RiotResponses subreddit.
-Additional Riot comments from the same VALORANT submission are added to the same RiotResponses submission.
+RiotResponses scans the VALORANT subreddit for comments from Riot Games employees. These comments are organized in tables and posted in submissions on the RiotResponses subreddit at https://www.reddit.com/r/RiotResponses/.
+Additional Riot comments from the same /r/VALORANT submission are added to the same /r/RiotResponses submission.
 
 ## Technologies
 Project is created with:
