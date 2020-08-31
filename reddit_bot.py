@@ -1,14 +1,20 @@
 #!/usr/bin/python
-import praw
 import pdb
 import re
 import os
 import time
-import mysql.connector as SQLC
-from mysql.connector import Error
-import database as db
+
+import praw
+from praw.exceptions import APIException
+from prawcore import ServerError
+
 from configparser import ConfigParser
 import logging
+
+import mysql.connector as SQLC
+from mysql.connector import Error
+
+import database as db
 
 # Set up logging
 logging.basicConfig(filename = 'riotresponses.log', format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -87,19 +93,21 @@ db.disconnect(dbcon)
 # Create subreddit instance
 subreddit = reddit.subreddit('VALORANT')
 
-# Setup subreddit stream
-stream = subreddit.stream.comments()
-
 while True:
+	# Setup subreddit stream in loop to restart when exception is thrown
+	stream = subreddit.stream.comments()
 	try:
 		# Get comments from stream
 		for comment in stream:
-			parseComment(comment)
+			if comment is not None:
+				parseComment(comment)
 	except KeyboardInterrupt:
-		# Write to log file
 		logging.info("KeyboardInterrupt")
-		exit()			# Exit on KeyboardInterrupt
-	except Exception as err:
-		# Write error to log file
-		logging.exception("Exception raised!")
-	time.sleep(5 * 60) # Try again after 5 minutes
+		exit()				# Exit on KeyboardInterrupt
+	except ServerError as err:
+		logging.exception("Reddit server down!")
+		time.sleep(2 * 60)	# Try again after 2 minutes
+	except APIException as err:
+		logging.exception("API Exception occurred!")
+		time.sleep(60)		# Try again after 1 minute
+		
