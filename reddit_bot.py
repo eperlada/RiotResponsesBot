@@ -96,7 +96,7 @@ else:
     dbcur = dbcon.cursor()
     dbcur.execute("SELECT * FROM Posts")
     dbposts = dbcur.fetchall()
-    for (source, post, time) in dbposts:
+    for (source, post, datetime) in dbposts:
         previous_posts[source] = post
 
 # Close database connection after loading in data
