@@ -30,6 +30,7 @@ reddit = praw.Reddit(username=config["REDDIT"]["username"],
                      client_id=config["REDDIT"]["client_id"],
                      client_secret=config["REDDIT"]["client_secret"],
                      user_agent="RiotResponses Bot v0.3")
+reddit.validate_on_submit = True
 
 # Formats a comment with the author name, comment body, and permalink to the comment
 
