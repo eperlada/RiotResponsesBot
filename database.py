@@ -20,7 +20,8 @@ def connect():
             host=config["DATABASE"]["host"],
             user=config["DATABASE"]["user"],
             passwd=config["DATABASE"]["passwd"],
-            database=config["DATABASE"]["database"]
+            database=config["DATABASE"]["database"],
+            auth_plugin='mysql_native_password'
         )
         print("Connected to MySQL database")
         return dbcon
