@@ -35,16 +35,31 @@ def disconnect(dbcon):
         print("MySQL connection closed")
 
 
-def insert(source, post):
+def insertPost(sourceid, postid, author, title):
     dbcon = connect()
     try:
         dbcur = dbcon.cursor()
-        dbcur.execute("INSERT INTO Posts VALUES (%s, %s, NOW())",
-                      (source, post))
+        dbcur.execute("INSERT INTO Posts VALUES (%s, %s, %s, %s, NOW())",
+                      (sourceid, postid, author, title))
         dbcon.commit()
         print("Successfully inserted into Posts")
     except Error as e:
-        print("Error inserting into MySQL table", e)
+        print("Error inserting into Posts table", e)
+    finally:
+        dbcur.close()
+        disconnect(dbcon)
+
+
+def insertComment(commentid, sourceid, author, content):
+    dbcon = connect()
+    try:
+        dbcur = dbcon.cursor()
+        dbcur.execute("INSERT INTO Comments VALUES (%s, %s, %s, %s, NOW())",
+                      (commentid, sourceid, author, content))
+        dbcon.commit()
+        print("Successfully inserted into Comments")
+    except Error as e:
+        print("Error inserting into Comments table", e)
     finally:
         dbcur.close()
         disconnect(dbcon)
@@ -64,17 +79,40 @@ def checkTableExists(dbcon, tablename):
     return False
 
 
-def createTable(dbcon):
+def createPostsTable(dbcon):
     try:
         dbcur = dbcon.cursor()
         dbcur.execute("""
 			CREATE TABLE Posts (
-				Source VARCHAR(6),
-				Post VARCHAR(6),
-				Time DATETIME
+				sourceid VARCHAR(8),
+        postid VARCHAR(8),
+				author VARCHAR(20),
+        title VARCHAR(300),
+				time DATETIME,
+        PRIMARY KEY (sourceid)
 			)""")
         print("Successfully created Posts table in database")
     except Error as e:
         print("Error creating Posts table in database", e)
+    finally:
+        dbcur.close()
+
+
+def createCommentsTable(dbcon):
+    try:
+        dbcur = dbcon.cursor()
+        dbcur.execute("""
+			CREATE TABLE Comments (
+				commentid VARCHAR(8),
+				sourceid VARCHAR(8),
+        author VARCHAR(20),
+        content TEXT,
+				time DATETIME,
+        PRIMARY KEY (commentid),
+        FOREIGN KEY (sourceid) REFERENCES Posts(sourceid)
+			)""")
+        print("Successfully created Comments table in database")
+    except Error as e:
+        print("Error creating Comments table in database", e)
     finally:
         dbcur.close()
