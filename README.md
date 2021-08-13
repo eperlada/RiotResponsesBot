@@ -1,6 +1,6 @@
 # RiotResponses - reddit bot
 
-Reddit bot created with Python 3.6 and MySQL 8.0
+Reddit bot created with Python 3.9 and MySQL 8.0
 
 ## Table of contents
 * [General info](#general-info)
@@ -9,16 +9,16 @@ Reddit bot created with Python 3.6 and MySQL 8.0
 
 ## General info
 RiotResponses scans the VALORANT subreddit for comments from Riot Games employees. These comments are organized in tables and posted in submissions on the RiotResponses subreddit at https://www.reddit.com/r/RiotResponses/.
-Additional Riot comments from the same /r/VALORANT submission are added to the same /r/RiotResponses submission.
+Additional Riot employee comments from the same /r/VALORANT submission are added to the same /r/RiotResponses submission.
 
 ## Technologies
 Project is created with:
 * Python 3.6
 * MySQL 8.0
-* PRAW 7.1.0
+* PRAW 7.4.0
 
 ## Setup
-A MySQL database is required to run this bot.
+A MySQL database is required to run this bot to make sure that data persists after the bot is stopped.
 
 PRAW and mysql-connector are required to run this bot. Install them using:
 
