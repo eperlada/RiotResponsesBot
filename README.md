@@ -20,11 +20,11 @@ Project is created with:
 ## Setup
 A MySQL database is required to run this bot to make sure that data persists after the bot is stopped.
 
-PRAW and mysql-connector are required to run this bot. Install them using:
+PRAW and mysql-connector-python are required to run this bot. Install them using:
 
 ```
 $ pip install praw
-$ pip install mysql-connector
+$ pip install mysql-connector-python
 ```
 
 To run this project, place all files (reddit_bot.py, database.py, config.ini) into one directory.
