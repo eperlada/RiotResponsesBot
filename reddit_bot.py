@@ -6,6 +6,7 @@ import time
 
 import praw
 from praw.exceptions import APIException
+from prawcore.exceptions import ResponseException
 from prawcore import ServerError
 
 from configparser import ConfigParser
@@ -124,3 +125,7 @@ while True:
     except APIException as err:
         logging.exception("API Exception occurred!")
         time.sleep(60)		# Try again after 1 minute
+    except ResponseException as err:
+        logging.exception("Response Exception occurred!")
+        time.sleep(60)		# Try again after 1 minute
+
